@@ -1,23 +1,63 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import "./App.css";
+import {
+  DndContext,
+  KeyboardSensor,
+  PointerSensor,
+  TouchSensor,
+  closestCorners,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import Column from "./components/Column/Column";
+import { arrayMove, sortableKeyboardCoordinates } from "@dnd-kit/sortable";
+import Input from "./components/Input/Input";
 
 function App() {
+  const [tasks, setTasks] = useState([
+    { id: 1, title: "Add texts to Homepage" },
+    { id: 2, title: "Fix Css" },
+    { id: 3, title: "Do Minor Project" },
+  ]);
+
+  const addTask = (title) => {
+    setTasks((tasks) => [...tasks, { id: tasks.length + 1, title }]);
+  };
+
+  const getTaskPos = (id) => tasks.findIndex((task) => task.id === id);
+
+  const handleDragEnd = (event) => {
+    const { active, over } = event;
+    if (active.id === over.id) {
+      return;
+    }
+    setTasks((tasks) => {
+      const originalPos = getTaskPos(active.id);
+      const newPos = getTaskPos(over.id);
+      return arrayMove(tasks, originalPos, newPos);
+    });
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(TouchSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>My Tasks</h1>
+      
+      <DndContext
+        sensors={sensors}
+        onDragEnd={handleDragEnd}
+        collisionDetection={closestCorners}
+      >
+        <Input onSubmit={addTask}/>
+        <Column tasks={tasks} />
+      </DndContext>
     </div>
   );
 }

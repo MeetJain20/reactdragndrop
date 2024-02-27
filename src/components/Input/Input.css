@@ -1,0 +1,19 @@
+.containerr {
+  display: flex;
+  gap: 10px;
+}
+
+.input {
+  border: 2px solid #ddd;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+
+.button {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 15px;
+  color: white;
+  background-color: #2563eb;
+}
